@@ -1,0 +1,302 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>研究生课程表</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .controls button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .controls button:hover {
+            background-color: #2980b9;
+        }
+        .week-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #currentWeekDisplay {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        #dateRange {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            min-width: 800px;
+        }
+        th, td {
+            border: 1px solid #e0e0e0;
+            padding: 10px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        th {
+            background-color: #34495e;
+            color: white;
+            font-weight: 600;
+            padding: 15px 10px;
+        }
+        .period-col {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #555;
+            width: 100px;
+        }
+        .period-time {
+            font-size: 0.8em;
+            color: #888;
+            font-weight: normal;
+            margin-top: 4px;
+        }
+        .course-card {
+            border-radius: 6px;
+            padding: 10px;
+            margin: 4px 0;
+            color: #fff;
+            font-size: 0.9em;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-align: left;
+            cursor: default;
+        }
+        .course-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+        .course-name {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 6px;
+            font-size: 1em;
+            line-height: 1.2;
+        }
+        .course-info {
+            font-size: 0.85em;
+            display: block;
+            opacity: 0.95;
+            line-height: 1.4;
+        }
+        .today-col {
+            background-color: #fffbe6; /* Highlight today's column */
+        }
+    </style>
+</head>
+<body>
+
+    <h1>研究生课程表</h1>
+    
+    <div class="controls">
+        <button onclick="changeWeek(-1)">❮ 上一周</button>
+        <div class="week-display">
+            <span id="currentWeekDisplay">第 1 周</span>
+            <span id="dateRange">2026.3.2 - 3.8</span>
+        </div>
+        <button onclick="changeWeek(1)">下一周 ❯</button>
+        <button onclick="goToCurrentWeek()" style="background-color: #2ecc71;">回到本周</button>
+    </div>
+
+    <div class="table-container">
+        <table id="scheduleTable">
+            <thead>
+                <tr>
+                    <th>节次</th>
+                    <th id="th-1">周一</th>
+                    <th id="th-2">周二</th>
+                    <th id="th-3">周三</th>
+                    <th id="th-4">周四</th>
+                    <th id="th-5">周五</th>
+                    <th id="th-6">周六</th>
+                    <th id="th-7">周日</th>
+                </tr>
+            </thead>
+            <tbody id="scheduleBody">
+                <!-- Rows will be populated by JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const scheduleData = [{"day": 7, "block": "1-2", "period": "上午1", "time": "08:00-08:50", "name": "金融伦理与职业道德班", "weeks": [11, 12, 13, 14], "teacher": "张立群", "location": "将军路D2202", "color": "#FF9AA2"}, {"day": 2, "block": "1-2", "period": "上午1", "time": "08:00-08:50", "name": "工程管理基础理论班", "weeks": [2, 3, 4, 5, 6, 7, 8, 9], "teacher": "时茜茜", "location": "将军路D2216", "color": "#B5EAD7"}, {"day": 6, "block": "1-2", "period": "上午1", "time": "08:00-08:50", "name": "金融专题讲座班", "weeks": [2, 3, 4, 5], "teacher": "徐菱涓", "location": "将军路D2216", "color": "#C7CEEA"}, {"day": 2, "block": "3-4", "period": "上午3", "time": "10:15-11:05", "name": "系统建模与仿真班", "weeks": [2, 3, 4, 5, 6, 7, 8, 9], "teacher": "杨一帆", "location": "将军路D2214", "color": "#E2F0CB"}, {"day": 3, "block": "5-6", "period": "下午5", "time": "14:00-14:50", "name": "企业经营实战模拟班", "weeks": [2, 3, 4, 5, 6, 7, 8, 9], "teacher": "张浩", "location": "将军路D2110", "color": "#FFB7B2"}, {"day": 4, "block": "5-6", "period": "下午5", "time": "14:00-14:50", "name": "系统建模与仿真班", "weeks": [2, 3, 4, 5, 6, 7, 8, 9], "teacher": "杨一帆", "location": "将军路D2214", "color": "#E2F0CB"}, {"day": 5, "block": "7-8", "period": "下午7", "time": "16:15-17:05", "name": "工程管理基础理论班", "weeks": [2, 3, 4, 5, 6, 7, 8, 9], "teacher": "时茜茜", "location": "将军路D2216", "color": "#B5EAD7"}, {"day": 4, "block": "9-11", "period": "晚上9", "time": "18:45-19:35", "name": "流程优化与设计班", "weeks": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "teacher": "庄品", "location": "将军路D2116", "color": "#FFDAC1"}];
+        const periodBlocks = [{"block": "1-2", "label": "1-2节课", "time": "08:00-08:50 / 08:55-09:45"}, {"block": "3-4", "label": "3-4节课", "time": "10:15-11:05 / 11:10-12:00"}, {"block": "5-6", "label": "5-6节课", "time": "14:00-14:50 / 14:55-15:45"}, {"block": "7-8", "label": "7-8节课", "time": "16:15-17:05 / 17:10-18:00"}, {"block": "9-11", "label": "9-11节课", "time": "18:45-19:35 / 19:40-20:30 / 20:35-21:25"}];
+        
+        // Configuration
+        // Anchor Date: Monday, March 2, 2026
+        const anchorDate = new Date('2026-03-02'); 
+        
+        let currentDisplayWeek = 1;
+
+        function getWeekNumber(date) {
+            // Calculate week number based on anchor date (Monday 3.2)
+            const diffTime = date - anchorDate;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays < 0) return 1; // Before start
+            return Math.floor(diffDays / 7) + 1;
+        }
+
+        function getDatesOfWeek(weekNum) {
+            // Week 1 starts Mon 3.2 and ends Sun 3.8.
+            // Monday of Week N = Anchor + (N-1)*7 days.
+            
+            const oneDay = 1000 * 60 * 60 * 24;
+            const mondayTimestamp = anchorDate.getTime() + ((weekNum - 1) * 7 * oneDay);
+            const mondayDate = new Date(mondayTimestamp);
+            
+            const dates = [];
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(mondayDate.getTime() + (i * oneDay));
+                dates.push(d);
+            }
+            return dates;
+        }
+
+        function formatDate(date) {
+            return (date.getMonth() + 1) + '.' + date.getDate();
+        }
+
+        function renderSchedule(week) {
+            const tbody = document.getElementById('scheduleBody');
+            tbody.innerHTML = '';
+            
+            document.getElementById('currentWeekDisplay').textContent = `第 ${week} 周`;
+            
+            const dates = getDatesOfWeek(week);
+            // Check if dates are valid
+            if (dates.length > 0) {
+                const dateRangeText = `${dates[0].getFullYear()}.${formatDate(dates[0])} - ${formatDate(dates[6])}`;
+                document.getElementById('dateRange').textContent = dateRangeText;
+            }
+            
+            // Update table headers with dates
+            const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+            const today = new Date();
+            
+            // Highlight logic: Check if today's date matches any of the column dates
+            for (let i = 0; i < 7; i++) {
+                const th = document.getElementById(`th-${i+1}`);
+                const colDate = dates[i];
+                th.innerHTML = `${days[i]}<br><small>${formatDate(colDate)}</small>`;
+                
+                if (colDate.getDate() === today.getDate() && 
+                    colDate.getMonth() === today.getMonth() && 
+                    colDate.getFullYear() === today.getFullYear()) {
+                    th.classList.add('today-col');
+                } else {
+                    th.classList.remove('today-col');
+                }
+            }
+
+            // Render rows
+            periodBlocks.forEach(p => {
+                const tr = document.createElement('tr');
+                
+                // Period Cell
+                const tdPeriod = document.createElement('td');
+                tdPeriod.className = 'period-col';
+                tdPeriod.innerHTML = `${p.label}<br><span class="period-time">${p.time}</span>`;
+                tr.appendChild(tdPeriod);
+                
+                // Day Cells
+                for (let day = 1; day <= 7; day++) {
+                    const td = document.createElement('td');
+                    
+                    // Highlight logic for cells
+                    const colDate = dates[day-1];
+                    if (colDate.getDate() === today.getDate() && 
+                        colDate.getMonth() === today.getMonth() && 
+                        colDate.getFullYear() === today.getFullYear()) {
+                        td.classList.add('today-col');
+                    }
+                    
+                    // Find courses
+                    const courses = scheduleData.filter(c => 
+                        c.day === day && 
+                        c.block === p.block &&
+                        c.weeks.includes(week)
+                    );
+                    
+                    courses.forEach(c => {
+                        const div = document.createElement('div');
+                        div.className = 'course-card';
+                        div.style.backgroundColor = c.color;
+                        div.innerHTML = `
+                            <span class="course-name">${c.name}</span>
+                            <span class="course-info">👤 ${c.teacher}</span>
+                            <span class="course-info">📍 ${c.location}</span>
+                        `;
+                        td.appendChild(div);
+                    });
+                    
+                    tr.appendChild(td);
+                }
+                
+                tbody.appendChild(tr);
+            });
+        }
+
+        function changeWeek(delta) {
+            currentDisplayWeek += delta;
+            if (currentDisplayWeek < 1) currentDisplayWeek = 1;
+            renderSchedule(currentDisplayWeek);
+        }
+        
+        function goToCurrentWeek() {
+            const today = new Date();
+            // Use anchor date to find current week
+            currentDisplayWeek = getWeekNumber(today);
+            renderSchedule(currentDisplayWeek);
+        }
+
+        // Initialize
+        goToCurrentWeek();
+        
+    </script>
+</body>
+</html>
+    
