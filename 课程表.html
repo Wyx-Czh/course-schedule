@@ -1,144 +1,282 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>研究生课程表</title>
+    <title>研究生课程表 | 色彩优化版</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
+        * {
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4eaf5 100%);
+            color: #333;
+            padding: 16px;
+            line-height: 1.5;
+            min-height: 100vh;
         }
         h1 {
             text-align: center;
-            color: #2c3e50;
-            margin-bottom: 20px;
+            color: #2d3748;
+            margin-bottom: 24px;
+            font-size: 28px;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
+        /* 控制栏优化 */
         .controls {
-            text-align: center;
-            margin-bottom: 20px;
-            background: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             display: flex;
-            justify-content: center;
             align-items: center;
-            gap: 15px;
+            justify-content: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            padding: 16px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
             flex-wrap: wrap;
+            border: 1px solid rgba(255, 255, 255, 0.5);
         }
         .controls button {
             padding: 10px 20px;
-            font-size: 16px;
+            font-size: 15px;
             cursor: pointer;
-            background-color: #3498db;
-            color: white;
             border: none;
-            border-radius: 5px;
-            transition: background 0.3s;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        /* 主按钮配色 - 靛蓝色系 */
+        .btn-prev, .btn-next {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+        }
+        /* 强调按钮 - 翠绿色系 */
+        .btn-current {
+            background: linear-gradient(135deg, #14b8a6 0%, #0f766e 100%);
+            color: white;
+        }
+        /* 跳转按钮 */
+        .week-input button {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
         }
         .controls button:hover {
-            background-color: #2980b9;
+            opacity: 0.95;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .controls button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
         .week-display {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            text-align: center;
+            min-width: 180px;
         }
         #currentWeekDisplay {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #2c3e50;
+            font-size: 20px;
+            font-weight: 600;
+            color: #2d3748;
+            display: block;
         }
         #dateRange {
-            color: #7f8c8d;
-            font-size: 0.9em;
+            color: #718096;
+            font-size: 14px;
+            display: block;
+            margin-top: 4px;
         }
+        /* 表格容器优化 */
         .table-container {
             overflow-x: auto;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 16px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            background: #fff;
             min-width: 800px;
         }
-        th, td {
-            border: 1px solid #e0e0e0;
-            padding: 10px;
-            text-align: center;
-            vertical-align: middle;
-        }
+        /* 表头配色 - 深灰蓝 */
         th {
-            background-color: #34495e;
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
             color: white;
-            font-weight: 600;
-            padding: 15px 10px;
+            font-weight: 500;
+            padding: 16px 8px;
+            text-align: center;
+            border: none;
+            position: relative;
         }
+        td {
+            border: 1px solid #e2e8f0;
+            padding: 8px;
+            text-align: center;
+            vertical-align: top;
+            transition: background-color 0.2s ease;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        /* 节次列优化 */
         .period-col {
-            background-color: #f8f9fa;
-            font-weight: bold;
-            color: #555;
-            width: 100px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            font-weight: 600;
+            color: #2d3748;
+            width: 120px;
+            border-right: 2px solid #e2e8f0;
         }
         .period-time {
-            font-size: 0.8em;
-            color: #888;
+            font-size: 12px;
+            color: #718096;
             font-weight: normal;
             margin-top: 4px;
+            display: block;
+            line-height: 1.4;
         }
+        /* 课程卡片优化 - 莫兰迪色系 */
         .course-card {
-            border-radius: 6px;
-            padding: 10px;
+            border-radius: 12px;
+            padding: 12px;
             margin: 4px 0;
-            color: #fff;
-            font-size: 0.9em;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
+            color: white;
+            font-size: 14px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+            transition: all 0.3s ease;
             text-align: left;
-            cursor: default;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            background-size: 150% 150%;
+            animation: gradientShift 8s ease infinite;
+        }
+        /* 渐变动画 */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .course-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background-color: rgba(255,255,255,0.7);
         }
         .course-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.18);
             z-index: 10;
         }
         .course-name {
-            font-weight: bold;
+            font-weight: 600;
             display: block;
             margin-bottom: 6px;
-            font-size: 1em;
-            line-height: 1.2;
+            font-size: 15px;
+            line-height: 1.3;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
         .course-info {
-            font-size: 0.85em;
+            font-size: 13px;
             display: block;
             opacity: 0.95;
             line-height: 1.4;
+            margin-bottom: 2px;
+            text-shadow: 0 1px 1px rgba(0,0,0,0.08);
         }
+        /* 今日高亮优化 - 暖黄色系 */
         .today-col {
-            background-color: #fffbe6; /* Highlight today's column */
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%) !important;
+        }
+        .today-col td {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        }
+        /* 空单元格提示 */
+        .empty-cell {
+            color: #cbd5e1;
+            font-size: 13px;
+            padding: 8px;
+            display: block;
+        }
+        /* 周数输入框 */
+        .week-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .week-input input {
+            width: 60px;
+            padding: 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 15px;
+            background-color: rgba(255, 255, 255, 0.8);
+            transition: border 0.2s ease;
+        }
+        .week-input input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+        }
+        /* 响应式适配 */
+        @media (max-width: 768px) {
+            body {
+                padding: 8px;
+            }
+            .controls {
+                padding: 12px;
+                gap: 8px;
+            }
+            .controls button {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+            h1 {
+                font-size: 24px;
+                margin-bottom: 16px;
+            }
+            .period-col {
+                width: 100px;
+            }
+            .course-card {
+                padding: 8px;
+                font-size: 13px;
+            }
+        }
+        /* 加载动画 */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+            font-size: 16px;
         }
     </style>
 </head>
 <body>
-
     <h1>研究生课程表</h1>
     
     <div class="controls">
-        <button onclick="changeWeek(-1)">❮ 上一周</button>
+        <button class="btn-prev" onclick="changeWeek(-1)">❮ 上一周</button>
         <div class="week-display">
             <span id="currentWeekDisplay">第 1 周</span>
             <span id="dateRange">2026.3.2 - 3.8</span>
         </div>
-        <button onclick="changeWeek(1)">下一周 ❯</button>
-        <button onclick="goToCurrentWeek()" style="background-color: #2ecc71;">回到本周</button>
+        <button class="btn-next" onclick="changeWeek(1)">下一周 ❯</button>
+        <div class="week-input">
+            <input type="number" id="weekNumInput" min="1" placeholder="周数">
+            <button onclick="jumpToWeek()">跳转</button>
+        </div>
+        <button class="btn-current" onclick="goToCurrentWeek()">回到本周</button>
     </div>
 
     <div class="table-container">
@@ -156,38 +294,51 @@
                 </tr>
             </thead>
             <tbody id="scheduleBody">
-                <!-- Rows will be populated by JS -->
+                <tr class="loading">
+                    <td colspan="8">加载中...</td>
+                </tr>
             </tbody>
         </table>
     </div>
 
     <script>
-        const scheduleData = [{"day": 7, "block": "1-2", "period": "上午1", "time": "08:00-08:50", "name": "金融伦理与职业道德班", "weeks": [11, 12, 13, 14], "teacher": "张立群", "location": "将军路D2202", "color": "#FF9AA2"}, {"day": 2, "block": "1-2", "period": "上午1", "time": "08:00-08:50", "name": "工程管理基础理论班", "weeks": [2, 3, 4, 5, 6, 7, 8, 9], "teacher": "时茜茜", "location": "将军路D2216", "color": "#B5EAD7"}, {"day": 6, "block": "1-2", "period": "上午1", "time": "08:00-08:50", "name": "金融专题讲座班", "weeks": [2, 3, 4, 5], "teacher": "徐菱涓", "location": "将军路D2216", "color": "#C7CEEA"}, {"day": 2, "block": "3-4", "period": "上午3", "time": "10:15-11:05", "name": "系统建模与仿真班", "weeks": [2, 3, 4, 5, 6, 7, 8, 9], "teacher": "杨一帆", "location": "将军路D2214", "color": "#E2F0CB"}, {"day": 3, "block": "5-6", "period": "下午5", "time": "14:00-14:50", "name": "企业经营实战模拟班", "weeks": [2, 3, 4, 5, 6, 7, 8, 9], "teacher": "张浩", "location": "将军路D2110", "color": "#FFB7B2"}, {"day": 4, "block": "5-6", "period": "下午5", "time": "14:00-14:50", "name": "系统建模与仿真班", "weeks": [2, 3, 4, 5, 6, 7, 8, 9], "teacher": "杨一帆", "location": "将军路D2214", "color": "#E2F0CB"}, {"day": 5, "block": "7-8", "period": "下午7", "time": "16:15-17:05", "name": "工程管理基础理论班", "weeks": [2, 3, 4, 5, 6, 7, 8, 9], "teacher": "时茜茜", "location": "将军路D2216", "color": "#B5EAD7"}, {"day": 4, "block": "9-11", "period": "晚上9", "time": "18:45-19:35", "name": "流程优化与设计班", "weeks": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "teacher": "庄品", "location": "将军路D2116", "color": "#FFDAC1"}];
-        const periodBlocks = [{"block": "1-2", "label": "1-2节课", "time": "08:00-08:50 / 08:55-09:45"}, {"block": "3-4", "label": "3-4节课", "time": "10:15-11:05 / 11:10-12:00"}, {"block": "5-6", "label": "5-6节课", "time": "14:00-14:50 / 14:55-15:45"}, {"block": "7-8", "label": "7-8节课", "time": "16:15-17:05 / 17:10-18:00"}, {"block": "9-11", "label": "9-11节课", "time": "18:45-19:35 / 19:40-20:30 / 20:35-21:25"}];
+        // 课程数据 - 优化后的莫兰迪色系配色
+        const scheduleData = [
+            {"day": 7, "block": "1-2", "period": "上午1", "time": "08:00-08:50", "name": "金融伦理与职业道德班", "weeks": [11, 12, 13, 14], "teacher": "张立群", "location": "将军路D2202", "color": "linear-gradient(135deg, #f87171 0%, #ef4444 100%)"}, 
+            {"day": 2, "block": "1-2", "period": "上午1", "time": "08:00-08:50", "name": "工程管理基础理论班", "weeks": [2, 3, 4, 5, 6, 7, 8, 9], "teacher": "时茜茜", "location": "将军路D2216", "color": "linear-gradient(135deg, #34d399 0%, #10b981 100%)"}, 
+            {"day": 6, "block": "1-2", "period": "上午1", "time": "08:00-08:50", "name": "金融专题讲座班", "weeks": [2, 3, 4, 5], "teacher": "徐菱涓", "location": "将军路D2216", "color": "linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)"}, 
+            {"day": 2, "block": "3-4", "period": "上午3", "time": "10:15-11:05", "name": "系统建模与仿真班", "weeks": [2, 3, 4, 5, 6, 7, 8, 9], "teacher": "杨一帆", "location": "将军路D2214", "color": "linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)"}, 
+            {"day": 3, "block": "5-6", "period": "下午5", "time": "14:00-14:50", "name": "企业经营实战模拟班", "weeks": [2, 3, 4, 5, 6, 7, 8, 9], "teacher": "张浩", "location": "将军路D2110", "color": "linear-gradient(135deg, #fb923c 0%, #f97316 100%)"}, 
+            {"day": 4, "block": "5-6", "period": "下午5", "time": "14:00-14:50", "name": "系统建模与仿真班", "weeks": [2, 3, 4, 5, 6, 7, 8, 9], "teacher": "杨一帆", "location": "将军路D2214", "color": "linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)"}, 
+            {"day": 5, "block": "7-8", "period": "下午7", "time": "16:15-17:05", "name": "工程管理基础理论班", "weeks": [2, 3, 4, 5, 6, 7, 8, 9], "teacher": "时茜茜", "location": "将军路D2216", "color": "linear-gradient(135deg, #34d399 0%, #10b981 100%)"}, 
+            {"day": 4, "block": "9-11", "period": "晚上9", "time": "18:45-19:35", "name": "流程优化与设计班", "weeks": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "teacher": "庄品", "location": "将军路D2116", "color": "linear-gradient(135deg, #ec4899 0%, #db2777 100%)"}
+        ];
         
-        // Configuration
-        // Anchor Date: Monday, March 2, 2026
+        // 节次配置
+        const periodBlocks = [
+            {"block": "1-2", "label": "1-2节课", "time": "08:00-08:50 / 08:55-09:45"}, 
+            {"block": "3-4", "label": "3-4节课", "time": "10:15-11:05 / 11:10-12:00"}, 
+            {"block": "5-6", "label": "5-6节课", "time": "14:00-14:50 / 14:55-15:45"}, 
+            {"block": "7-8", "label": "7-8节课", "time": "16:15-17:05 / 17:10-18:00"}, 
+            {"block": "9-11", "label": "9-11节课", "time": "18:45-19:35 / 19:40-20:30 / 20:35-21:25"}
+        ];
+        
+        // 锚定日期：2026年3月2日（周一）
         const anchorDate = new Date('2026-03-02'); 
-        
         let currentDisplayWeek = 1;
 
+        // 获取日期对应的周数
         function getWeekNumber(date) {
-            // Calculate week number based on anchor date (Monday 3.2)
             const diffTime = date - anchorDate;
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            
-            if (diffDays < 0) return 1; // Before start
-            return Math.floor(diffDays / 7) + 1;
+            return diffDays < 0 ? 1 : Math.floor(diffDays / 7) + 1;
         }
 
+        // 获取指定周的所有日期（周一到周日）
         function getDatesOfWeek(weekNum) {
-            // Week 1 starts Mon 3.2 and ends Sun 3.8.
-            // Monday of Week N = Anchor + (N-1)*7 days.
-            
             const oneDay = 1000 * 60 * 60 * 24;
             const mondayTimestamp = anchorDate.getTime() + ((weekNum - 1) * 7 * oneDay);
             const mondayDate = new Date(mondayTimestamp);
-            
             const dates = [];
             for (let i = 0; i < 7; i++) {
                 const d = new Date(mondayDate.getTime() + (i * oneDay));
@@ -196,107 +347,154 @@
             return dates;
         }
 
+        // 格式化日期：月.日
         function formatDate(date) {
-            return (date.getMonth() + 1) + '.' + date.getDate();
+            return `${date.getMonth() + 1}.${date.getDate().toString().padStart(2, '0')}`;
         }
 
+        // 格式化完整日期：年.月.日
+        function formatFullDate(date) {
+            return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate().toString().padStart(2, '0')}`;
+        }
+
+        // 渲染课程表
         function renderSchedule(week) {
             const tbody = document.getElementById('scheduleBody');
-            tbody.innerHTML = '';
+            // 清空并显示加载状态
+            tbody.innerHTML = '<tr class="loading"><td colspan="8">加载中...</td></tr>';
             
-            document.getElementById('currentWeekDisplay').textContent = `第 ${week} 周`;
-            
-            const dates = getDatesOfWeek(week);
-            // Check if dates are valid
-            if (dates.length > 0) {
-                const dateRangeText = `${dates[0].getFullYear()}.${formatDate(dates[0])} - ${formatDate(dates[6])}`;
-                document.getElementById('dateRange').textContent = dateRangeText;
-            }
-            
-            // Update table headers with dates
-            const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-            const today = new Date();
-            
-            // Highlight logic: Check if today's date matches any of the column dates
-            for (let i = 0; i < 7; i++) {
-                const th = document.getElementById(`th-${i+1}`);
-                const colDate = dates[i];
-                th.innerHTML = `${days[i]}<br><small>${formatDate(colDate)}</small>`;
+            // 防抖/延迟渲染，提升体验
+            setTimeout(() => {
+                tbody.innerHTML = '';
                 
-                if (colDate.getDate() === today.getDate() && 
-                    colDate.getMonth() === today.getMonth() && 
-                    colDate.getFullYear() === today.getFullYear()) {
-                    th.classList.add('today-col');
-                } else {
-                    th.classList.remove('today-col');
+                // 更新周数显示
+                document.getElementById('currentWeekDisplay').textContent = `第 ${week} 周`;
+                
+                // 更新日期范围
+                const dates = getDatesOfWeek(week);
+                if (dates.length > 0) {
+                    const dateRangeText = `${formatFullDate(dates[0])} - ${formatDate(dates[6])}`;
+                    document.getElementById('dateRange').textContent = dateRangeText;
                 }
-            }
+                
+                // 更新表头（含今日高亮）
+                const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+                const today = new Date();
+                const todayStr = formatFullDate(today);
+                
+                for (let i = 0; i < 7; i++) {
+                    const th = document.getElementById(`th-${i+1}`);
+                    const colDate = dates[i];
+                    const colDateStr = formatFullDate(colDate);
+                    th.innerHTML = `${days[i]}<br><small>${formatDate(colDate)}</small>`;
+                    th.classList.toggle('today-col', colDateStr === todayStr);
+                }
 
-            // Render rows
-            periodBlocks.forEach(p => {
-                const tr = document.createElement('tr');
-                
-                // Period Cell
-                const tdPeriod = document.createElement('td');
-                tdPeriod.className = 'period-col';
-                tdPeriod.innerHTML = `${p.label}<br><span class="period-time">${p.time}</span>`;
-                tr.appendChild(tdPeriod);
-                
-                // Day Cells
-                for (let day = 1; day <= 7; day++) {
-                    const td = document.createElement('td');
+                // 渲染节次行
+                periodBlocks.forEach(p => {
+                    const tr = document.createElement('tr');
                     
-                    // Highlight logic for cells
-                    const colDate = dates[day-1];
-                    if (colDate.getDate() === today.getDate() && 
-                        colDate.getMonth() === today.getMonth() && 
-                        colDate.getFullYear() === today.getFullYear()) {
-                        td.classList.add('today-col');
+                    // 节次单元格
+                    const tdPeriod = document.createElement('td');
+                    tdPeriod.className = 'period-col';
+                    tdPeriod.innerHTML = `${p.label}<br><span class="period-time">${p.time}</span>`;
+                    tr.appendChild(tdPeriod);
+                    
+                    // 每日单元格
+                    for (let day = 1; day <= 7; day++) {
+                        const td = document.createElement('td');
+                        const colDate = dates[day-1];
+                        const colDateStr = formatFullDate(colDate);
+                        
+                        // 今日高亮
+                        if (colDateStr === todayStr) {
+                            td.classList.add('today-col');
+                        }
+                        
+                        // 查找对应课程
+                        const courses = scheduleData.filter(c => 
+                            c.day === day && 
+                            c.block === p.block &&
+                            c.weeks.includes(week)
+                        );
+                        
+                        // 渲染课程卡片
+                        if (courses.length > 0) {
+                            courses.forEach(c => {
+                                const div = document.createElement('div');
+                                div.className = 'course-card';
+                                div.style.background = c.color; // 使用渐变背景
+                                div.innerHTML = `
+                                    <span class="course-name">${c.name}</span>
+                                    <span class="course-info">👤 ${c.teacher}</span>
+                                    <span class="course-info">📍 ${c.location}</span>
+                                    <span class="course-info">📅 第${c.weeks.join(',')}周</span>
+                                `;
+                                // 点击课程卡片提示详情
+                                div.addEventListener('click', () => {
+                                    alert(`
+课程名称：${c.name}
+授课老师：${c.teacher}
+上课地点：${c.location}
+上课周数：第${c.weeks.join(',')}周
+上课时间：${days[day-1]} ${p.time}
+                                    `.trim());
+                                });
+                                td.appendChild(div);
+                            });
+                        } else {
+                            // 空单元格提示
+                            td.innerHTML = '<span class="empty-cell">无课程</span>';
+                        }
+                        
+                        tr.appendChild(td);
                     }
                     
-                    // Find courses
-                    const courses = scheduleData.filter(c => 
-                        c.day === day && 
-                        c.block === p.block &&
-                        c.weeks.includes(week)
-                    );
-                    
-                    courses.forEach(c => {
-                        const div = document.createElement('div');
-                        div.className = 'course-card';
-                        div.style.backgroundColor = c.color;
-                        div.innerHTML = `
-                            <span class="course-name">${c.name}</span>
-                            <span class="course-info">👤 ${c.teacher}</span>
-                            <span class="course-info">📍 ${c.location}</span>
-                        `;
-                        td.appendChild(div);
-                    });
-                    
-                    tr.appendChild(td);
-                }
-                
-                tbody.appendChild(tr);
-            });
+                    tbody.appendChild(tr);
+                });
+            }, 100);
         }
 
+        // 切换周数
         function changeWeek(delta) {
             currentDisplayWeek += delta;
             if (currentDisplayWeek < 1) currentDisplayWeek = 1;
+            // 限制最大周数（可根据实际情况调整）
+            if (currentDisplayWeek > 20) currentDisplayWeek = 20;
             renderSchedule(currentDisplayWeek);
+            // 更新输入框值
+            document.getElementById('weekNumInput').value = currentDisplayWeek;
         }
         
+        // 跳转到指定周
+        function jumpToWeek() {
+            const input = document.getElementById('weekNumInput');
+            const week = parseInt(input.value);
+            if (!isNaN(week) && week >= 1 && week <= 20) {
+                currentDisplayWeek = week;
+                renderSchedule(currentDisplayWeek);
+            } else {
+                alert('请输入1-20之间的有效周数！');
+                input.value = currentDisplayWeek;
+            }
+        }
+        
+        // 回到本周
         function goToCurrentWeek() {
             const today = new Date();
-            // Use anchor date to find current week
             currentDisplayWeek = getWeekNumber(today);
             renderSchedule(currentDisplayWeek);
+            document.getElementById('weekNumInput').value = currentDisplayWeek;
         }
 
-        // Initialize
-        goToCurrentWeek();
-        
+        // 初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            goToCurrentWeek();
+            // 输入框回车触发跳转
+            document.getElementById('weekNumInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') jumpToWeek();
+            });
+        });
     </script>
 </body>
 </html>
-    
